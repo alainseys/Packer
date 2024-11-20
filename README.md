@@ -11,3 +11,11 @@ packer plugins install github.com/hashicorp/vsphere
 
 ## Get sha256sum of iso
 ``sha256sum name-of-your-iso-file.iso``
+
+## Running the builds
+In evry version of the packerbuild projects you can find a build.sh file when you run this the automated process is executed.
+
+```
+chmod +x build.sh
+.\build.sh
+```
