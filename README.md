@@ -1,6 +1,9 @@
 # Packer
 Diferent packer builds
 
+### Changelog
+- 20/11/2024: Updated Rockelinux to version v9.5
+
 ## Installation
 ```
 sudo yum install -y yum-utils
