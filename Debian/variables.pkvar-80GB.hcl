@@ -20,7 +20,7 @@ vm_disk_controller_type     = ["pvscsi"]
 vm_network_card             = "vmxnet3"
 vm_boot_wait                = "5s"
 ssh_username                = "ansible"
-ssh_password                = "n6WEbf9YZtJd2EnC"
+ssh_password                = "Password123!"
 # ISO Objects
 
 
