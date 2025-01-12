@@ -15,6 +15,7 @@ My process goes as following:
 - 20/11/2024: Updated Rockelinux to version v9.5
 - 12/01/2025: Added Ubuntu configuration
 - 12/01/2025: Updated Readme instructions
+- 12/01/2025: Updated SSH configuration and verified on vcenter
 
 ## Installation
 ```
