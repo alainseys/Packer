@@ -1,0 +1,39 @@
+#cloud-config
+autoinstall:
+    version: 1
+    early-commands:
+        # Stop ssh for packer
+        - sudo systemctl stop ssh
+    locale: nl_BE.UTF-8
+    keyboard:
+        layout: be
+        variant: oss
+    # general packages needed for machines - referenced from https://tekanaid.com/posts/hashicorp-packer-build-ubuntu20-04-vmware
+    packages: [open-vm-tools, openssh-server, net-tools, perl, open-iscsi, ntp, curl, wget, git, vim, ifupdown, zip, unzip, gnupg2, software-properties-common, apt-transport-https, ca-certificates, lsb-release, python3-pip, jq]
+
+# NEw
+    # network setup - referenced from https://tekanaid.com/posts/hashicorp-packer-build-ubuntu20-04-vmware
+    network:
+       network:
+          version: 2
+          ethernets:
+              ens192:
+                  dhcp4: true
+    identity:
+        hostname: localhost
+        username: ansible
+        password: "$6$CPewISyXPHN0m/6I$C7vidK1KmTYZ0Wqc4Uc94/joL/6yy/YivIYsQREDhPCy/fkidU6c5s5lfCo5JJNwNkxnln9OMi7X2Ik6rDzFk."
+    ssh:
+        install-server: yes
+        allow-pw: yes
+        authorized-keys:
+            - ssh-rsa add_ssh_keys_here
+
+    storage:
+        layout:
+            name: direct
+    user-data:
+      disable_root: false
+    late-commands:
+      - sed -i -e 's/^#\?PermitRootLogin.*/PermitRootLogin yes/g' /target/etc/ssh/sshd_config
+      - echo 'ansible ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
