@@ -23,10 +23,10 @@ mkpasswd -m sha-512 -S saltsalt yourpassword
 🧊 [Awx](https://github.com/ansible/awx)
 
 ## Used Resources
-[Packer](https://www.packer.io/)
+🔬 [Packer](https://www.packer.io/)
 
-[Packer Proxmox](https://developer.hashicorp.com/packer/integrations/hashicorp/proxmox/latest/components/builder/iso)
+🔬 [Packer Proxmox](https://developer.hashicorp.com/packer/integrations/hashicorp/proxmox/latest/components/builder/iso)
 
-[Packer Vcenter](https://developer.hashicorp.com/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-iso)
+🔬 [Packer Vcenter](https://developer.hashicorp.com/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-iso)
 
-[ChristionLempa Boiler plates (specialy for the boot commands)](https://github.com/ChristianLempa/boilerplates/tree/main/packer/proxmox)
+🔬 [ChristionLempa Boiler plates (specialy for the boot commands)](https://github.com/ChristianLempa/boilerplates/tree/main/packer/proxmox)
