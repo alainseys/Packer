@@ -1,115 +1,227 @@
-# Ubuntu Server Focal
-# ---
-# Packer Template to create an Ubuntu Server (Focal) on Proxmox
-
-# Variable Definitions
-variable "proxmox_api_url" {
+variable proxmox_api_url {
+    type = string
+    description = "The proxox api url"
+}
+variable proxmox_api_token_id {
     type = string
 }
 
-variable "proxmox_api_token_id" {
+variable proxmox_api_token_secret {
     type = string
 }
-
-variable "proxmox_api_token_secret" {
-    type = string
-    sensitive = true
+variable http_directory {
+  type    = string
+  description = "Directory of config files(user-data, meta-data)."
+  default = "http"
 }
 
-# Resource Definiation for the VM Template
+variable proxmox_insecure_connection {
+    type = bool
+    description = "If true, does not validate the TLS certificate"
+    default = true
+}
+
+variable proxmox_host {
+    type = string
+    description = "The Proxox active node where the target vm is created"
+    default = ""
+}
+
+variable proxmox_vm_id {
+    type = string
+    description = "The proxmox vm id to create template (unique)"
+    default = "103"
+}
+
+variable vm_name{
+    type = string
+    description = "The template vm name"
+    default = ""
+}
+
+variable vm_cores{
+    type = number
+    description = "The number of virtual cpu cores per socket"
+}
+
+variable vm_sockets {
+    type = number
+    description = "The number of virtual sockets"
+}
+
+variable vm_mem_size{
+    type = number
+    description = "The size for the virtual memory in MB"
+}
+
+variable vm_disk_size {
+    type = string
+    description = "The size for the virtual disk in GB "
+}
+
+variable vm_disk_format {
+    type = string
+    description = "The format of disk to use"
+    default = "raw"
+}
+
+
+
+variable vm_storage_pool {
+    type = string
+    description = "the storage pool to use"
+}
+variable vm_storage_pool_type{
+    type = string
+    description = "The storage pool type to user"
+    default = ""
+}
+variable "vm_storage_type"{
+    type = string
+    description = "The storage type (eg: virtio)"
+}
+
+variable iso_storage_pool {
+    type = string
+    description = "The iso storage pool name"
+    default = ""
+}
+variable vm_network_model{
+    type = string
+    description = "The type of the network interface"
+    default = "virtio"
+}
+variable vm_network_bridge{
+    type = string
+    description = "the bridge to user"
+    default = "vmbr0"
+}
+variable vm_network_firewall{
+    type = bool
+    description = "If true firewall will be enable at hypervisor level"
+    default = false
+}
+
+variable iso_unmount{
+    type = bool
+    description = "If true the iso wil be unmounted when install is done"
+    default = true
+}
+
+variable qemu_agent {
+    type = bool
+    description = "If ture the qemu agent wil be installed"
+    default = true
+}
+variable scsi_controller {
+    type = string
+    description = "The correct naming convention of the scsi_controller"
+    default = ""
+}
+variable ssh_username {
+    type = string
+    description = "The username to use to test the ssh functionality"
+}
+variable ssh_password {
+    type = string
+    description = "The ssh password to authenticate the ssh user"
+}
+variable iso_file{
+    type = string
+    description = "The location of the iso"
+}
+variable iso_checksum {
+     type = string
+    description = "The iso checksum"
+}
+
+variable shell_scripts{
+    type = string
+    description = "The download url"
+}
+variable template_description {
+   type = string
+   description = "The tempalte description"
+}
 source "proxmox" "ubuntu-server-focal" {
 
-    # Proxmox Connection Settings
+    # Proxmox connection settings
     proxmox_url = "${var.proxmox_api_url}"
-    username = "${var.proxmox_api_token_id}"
+    username =  "${var.proxmox_api_token_id}"
     token = "${var.proxmox_api_token_secret}"
-    # (Optional) Skip TLS Verification
-    # insecure_skip_tls_verify = true
+    insecure_skip_tls_verify = "${var.proxmox_insecure_connection}"
 
-    # VM General Settings
-    node = "your-proxmox-node"
-    vm_id = "100"
-    vm_name = "ubuntu-server-focal"
-    template_description = "Ubuntu Server Focal Image"
 
-    # VM OS Settings
-    # (Option 1) Local ISO File
-    # iso_file = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
-    # - or -
-    # (Option 2) Download ISO
-    iso_url = "https://releases.ubuntu.com/noble/ubuntu-24.04.1-live-server-amd64.iso"
-    iso_checksum = "e240e4b801f7bb68c20d1356b60968ad0c33a41d00d828e74ceb3364a0317be9"
-    iso_storage_pool = "local"
-    unmount_iso = true
-
-    # VM System Settings
-    qemu_agent = true
-
-    # VM Hard Disk Settings
-    scsi_controller = "virtio-scsi-pci"
-
+    # VM Settings
+    template_description = "${var.template_description}"
+    node = "${var.proxmox_host}"
+    vm_id = "${var.proxmox_vm_id}"
+    vm_name = "${var.vm_name}"
+    # CPU
+    cores = "${var.vm_cores}"
+    sockets = "${var.vm_sockets}"
+    # Memory
+    memory = "${var.vm_mem_size}"
+    # Storage
+    scsi_controller = "${var.scsi_controller}"
     disks {
         disk_size = "20G"
-        format = "qcow2"
-        storage_pool = "local-lvm"
-        storage_pool_type = "lvm"
-        type = "virtio"
+        format = "${var.vm_disk_format}"
+        storage_pool = "${var.vm_storage_pool}"
+        storage_pool_type = "${var.vm_storage_pool_type}"
+        type = "${var.vm_storage_type}"
     }
-
-    # VM CPU Settings
-    cores = "1"
-
-    # VM Memory Settings
-    memory = "2048"
-
-    # VM Network Settings
+    # Networking
     network_adapters {
-        model = "virtio"
-        bridge = "vmbr0"
-        firewall = "false"
+        model = "${var.vm_network_model}"
+        bridge = "${var.vm_network_bridge}"
+        firewall = "${var.vm_network_firewall}"
     }
+    # ISO Part
+    boot_iso {
+        type = "scsi"
+        iso_file = "${var.iso_file}"
+        unmount = "${var.iso_unmount}"
+        iso_checksum = "${var.iso_checksum}"
+    }
+    qemu_agent = "${var.qemu_agent}"
 
-    # VM Cloud-Init Settings
+    # Cloud Init
     cloud_init = true
-    cloud_init_storage_pool = "local-lvm"
+    cloud_init_storage_pool = "${var.vm_storage_pool}"
 
+    #boot_command = [
+    #    "e<down><down><down><end>",
+    #    " autoinstall ds=nocloud;",
+    #    "<F10>"
+    #]
     # PACKER Boot Commands
     boot_command = [
-        "<esc><wait><esc><wait>",
-        "<f6><wait><esc><wait>",
-        "<bs><bs><bs><bs><bs>",
-        "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ",
-        "--- <enter>"
+        "<esc><wait>",
+        "e<wait>",
+        "<down><down><down><end>",
+        "<bs><bs><bs><bs><wait>",
+        "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
+        "<f10><wait>"
     ]
     boot = "c"
     boot_wait = "5s"
-
-    # PACKER Autoinstall Settings
-    http_directory = "http"
-    # (Optional) Bind IP Address and Port
-    # http_bind_address = "0.0.0.0"
-    # http_port_min = 8802
-    # http_port_max = 8802
-
-    ssh_username = "your-user-name"
-
-    # (Option 1) Add your Password here
-    # ssh_password = "your-password"
-    # - or -
-    # (Option 2) Add your Private SSH KEY file here
-    # ssh_private_key_file = "~/.ssh/id_rsa"
-
-    # Raise the timeout, when installation takes longer
+    http_directory = "${var.http_directory}"
+    ssh_username = "${var.ssh_username}"
+    ssh_password = "${var.ssh_password}"
+    #ssh_private_key_file = "${var.ssh_private_key_file}"
     ssh_timeout = "20m"
+
+
 }
-
-# Build Definition to create the VM Template
+##################################################################################
+# BUILD
+##################################################################################
 build {
-
-    name = "ubuntu-server-focal"
+    name = "build-ubuntu-server"
     sources = ["source.proxmox.ubuntu-server-focal"]
 
-    # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
+ # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
     provisioner "shell" {
         inline = [
             "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
@@ -135,6 +247,14 @@ build {
         inline = [ "sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg" ]
     }
 
-    # Add additional provisioning scripts here
-    # ...
+    # Provisioning the VM Template with Docker Installation #4
+    provisioner "shell" {
+        inline = [
+            "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
+            "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
+            "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
+            "sudo apt-get -y update",
+            "sudo apt-get install -y docker-ce docker-ce-cli containerd.io"
+        ]
+    }
 }
