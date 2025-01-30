@@ -8,3 +8,5 @@ How to use this ?
 
 Notice this uses a fixed number of vm if the vm number is in use this will not automaticly jump to a new id.
 
+## TODO
+- Get next vm id
